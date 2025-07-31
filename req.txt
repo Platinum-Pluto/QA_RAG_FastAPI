@@ -1,0 +1,11 @@
+langchain
+langchain_huggingface
+langchain_chroma
+langchain_text_splitters
+langchain_core
+langchain_community
+pandas
+sqlite3
+fastapi
+streamlit
+pytesseract
