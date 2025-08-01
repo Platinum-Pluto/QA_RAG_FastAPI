@@ -7,41 +7,35 @@ from langgraph.graph import START, StateGraph
 from typing_extensions import List, TypedDict
 from langchain_core.prompts import PromptTemplate
 from data_digest import load_file
-import main
 import os
-from os import environ as env
+from dotenv import load_dotenv
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
 
 
-os.environ["GOOGLE_API_KEY"] = env['API_KEY']
 
-llm = init_chat_model(env['MODEL'], model_provider=env['PROVIDER'])
+class PlatinumPipeline:
+    class State(TypedDict):
+        question: str
+        context: List[Document]
+        answer: str
 
-embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+    def __init__(self):
+        load_dotenv()
+        self.UPLOAD_DIR = "uploads"
+    
+        os.environ["GOOGLE_API_KEY"] = os.getenv("API_KEY")
 
+        self.llm = init_chat_model(os.getenv("MODEL"), model_provider=os.getenv("PROVIDER"))
+        #self.embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+        self.embeddings = GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-001")
 
-vector_store = Chroma(
-    collection_name="rag_collection",
-    embedding_function=embeddings,
-)
-
-docs = []
-
-for file in main.files:
-    doc = load_file(file)
-    docs.extend(doc)
-
-text_splitter = RecursiveCharacterTextSplitter(
-    chunk_size=1000, 
-    chunk_overlap=200,
-    separators=["\n\n", "\n", " ", ""]
-    )
-
-all_splits = text_splitter.split_documents(docs)
-
-vectors = vector_store.add_documents(documents=all_splits)
+        self.vector_store = Chroma(
+            collection_name="rag_collection",
+            embedding_function=self.embeddings,
+        )
 
 
-prompt_template = """Use the following pieces of context to answer the question.
+        self.prompt_template = """Use the following pieces of context to answer the question.
 If you don't know the answer based on the context that has been provided then, just say that you don't know, don't try to make up an answer.
 You have to be concise with your answers so that its reasonable and understandable to the user.
 
@@ -52,38 +46,52 @@ Question: {question}
 Helpful Answer:
 """
 
-rag_prompt = PromptTemplate.from_template(prompt_template)
-
-rag_docs = None
-
-
-class State(TypedDict):
-    question: str
-    context: List[Document]
-    answer: str
+        self.rag_prompt = PromptTemplate.from_template(self.prompt_template)
+        self.rag_docs = None
+        self.load_and_process_documents()
 
 
-def retrieve(state: State):
-    retrieved_docs = vectors.similarity_search(state["question"])
-    global rag_docs
-    rag_docs = retrieved_docs
-    return {"context": retrieved_docs}
+    def list_files(self):
+        files = []
+        for filename in os.listdir(self.UPLOAD_DIR):
+            if os.path.isfile(os.path.join(self.UPLOAD_DIR, filename)):
+                files.append(filename)
+        return files
 
 
-def generate(state: State):
-    docs_content = "\n\n".join(doc.page_content for doc in state["context"])
-    messages = rag_prompt.invoke({"question": state["question"], "context": docs_content})
-    response = llm.invoke(messages)
-    return {"answer": response.content}
+    def load_and_process_documents(self):
+        docs = []
+        files = self.list_files()
+        for file in files:
+            doc = load_file(os.path.join(self.upload_dir, file))
+            docs.extend(doc)
+
+        text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=1000,
+            chunk_overlap=200,
+            separators=["\n\n", "\n", " ", ""]
+        )
+        all_splits = text_splitter.split_documents(docs)
+        self.vector_store.add_documents(documents=all_splits)
 
 
-def gen_ans(question):
-    global rag_docs
-    context = rag_docs
-    rag_docs.clear()
-    graph_builder = StateGraph(State).add_sequence([retrieve, generate])
-    graph_builder.add_edge(START, "retrieve")
-    graph = graph_builder.compile()
-    response = graph.invoke({"question": "Query"})
+    def retrieve(self, state: State):
+        retrieved_docs = self.vectors.similarity_search(state["question"])
+        self.rag_docs = retrieved_docs
+        return {"context": retrieved_docs}
 
-    return response["answer"], context
+
+    def generate(self, state: State):
+        docs_content = "\n\n".join(doc.page_content for doc in state["context"])
+        messages = self.rag_prompt.invoke({"question": state["question"], "context": docs_content})
+        response = self.llm.invoke(messages)
+        return {"answer": response.content}
+
+
+    def gen_ans(self, question):
+        graph_builder = StateGraph(self.State).add_sequence([self.retrieve, self.generate])
+        graph_builder.add_edge(START, "retrieve")
+        graph = graph_builder.compile()
+        response = graph.invoke({"question": question})
+
+        return response["answer"], self.rag_docs

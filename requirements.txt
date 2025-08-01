@@ -12,3 +12,5 @@ dotenv
 langgraph
 python-docx
 python-multipart
+langchain-google-genai
+sentence-transformers
