@@ -8,6 +8,7 @@ import sqlite3
 import os
 
 
+
 def load_pdf(file_path):
     loader = PyMuPDFLoader(file_path)
     return loader.load()
@@ -83,4 +84,3 @@ def load_file(file_path):
     else:
         raise ValueError(f"Unsupported file type: {ext}")
     
-

@@ -9,3 +9,4 @@ sqlite3
 fastapi
 streamlit
 pytesseract
+dotenv

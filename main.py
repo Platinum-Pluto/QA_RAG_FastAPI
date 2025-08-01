@@ -6,7 +6,6 @@ from rag import gen_ans
 UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-
 app = FastAPI()
 
 files = []

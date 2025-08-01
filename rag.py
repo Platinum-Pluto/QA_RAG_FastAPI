@@ -41,7 +41,7 @@ prompt_template = """Use the following pieces of context to answer the question.
 If you don't know the answer based on the context that has been provided then, just say that you don't know, don't try to make up an answer.
 You have to be concise with your answers so that its reasonable and understandable to the user.
 
-{context}
+Context: {context}
 
 Question: {question}
 
