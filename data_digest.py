@@ -1,6 +1,6 @@
 from langchain_core.documents import Document
 from langchain_community.document_loaders import PyMuPDFLoader
-import docx
+from docx import Document 
 from PIL import Image
 import pytesseract
 import pandas as pd
@@ -14,7 +14,7 @@ def load_pdf(file_path):
     return loader.load()
 
 def load_docx(file_path):
-    doc = docx.Document(file_path)
+    doc = Document(file_path)
     full_text = "\n".join([para.text for para in doc.paragraphs])
     return [Document(page_content=full_text, metadata={"source": file_path})]
 

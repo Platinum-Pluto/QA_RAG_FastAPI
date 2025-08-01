@@ -10,3 +10,5 @@ streamlit
 pytesseract
 dotenv
 langgraph
+python-docx
+python-multipart
