@@ -6,3 +6,4 @@ env.*
 *.gitignore
 *.gitignore.*
 gitignore.*
+uploads/
