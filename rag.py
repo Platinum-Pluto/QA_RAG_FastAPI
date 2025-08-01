@@ -8,9 +8,13 @@ from typing_extensions import List, TypedDict
 from langchain_core.prompts import PromptTemplate
 from data_digest import load_file
 import main
+import os
+from os import environ as env
 
 
-llm = init_chat_model("gemini-2.5-flash", model_provider="google_genai")
+os.environ["GOOGLE_API_KEY"] = env['API_KEY']
+
+llm = init_chat_model(env['MODEL'], model_provider=env['PROVIDER'])
 
 embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
 
