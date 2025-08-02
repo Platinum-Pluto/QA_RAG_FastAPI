@@ -4,6 +4,8 @@ import os
 from typing import List
 from rag import PlatinumPipeline
 from pathlib import Path
+from pydantic import BaseModel
+import re
 
 UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
@@ -15,13 +17,15 @@ def clean_uploads():
     for file in folder.iterdir():
         if file.is_file():
             file.unlink()
+class Query(BaseModel):
+    query: str
 
 
 @app.get("/")
 async def root():
     return {"message": "WELCOME TO THE QA RAG FastAPI!!!"}
 
-@app.post("/query")
+"""@app.post("/query")
 async def query_rag(query, file: List[UploadFile] = File(...)):
     if not file and os.listdir(UPLOAD_DIR):
         rag = PlatinumPipeline()
@@ -44,6 +48,20 @@ async def query_rag(query, file: List[UploadFile] = File(...)):
     
     else:
         return {"message": "No files were uploaded"}
+"""
+
+@app.post("/query")
+async def query_rag(request: Query):
+    rag = PlatinumPipeline()
+    response, context = rag.gen_ans(request.query)
+    formatted_contexts = [c.page_content for c in context]
+    source = [
+    f"Page {c.metadata.get('page', 0) + 1} of {re.sub(r'^.*?_', '', os.path.basename(c.metadata.get('file_path', 'unknown')))}"
+    for c in context
+    ]
+    clean_uploads()
+    return {"Context":formatted_contexts, "Response": response, "Source Info": source}
+    
 
 
 @app.post("/upload")
