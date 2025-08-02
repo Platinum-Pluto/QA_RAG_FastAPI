@@ -1,21 +1,3 @@
-"""import streamlit as st
-
-if "chat_history" not in st.session_state:
-	st.session_state.chat_history = []
-
-st.set_page_config(page_title = "QA RAG BOT", page_icon = "")
-st.title("QA RAG BOT")
-
-
-user_query = st.chat_input(" You")
-if user_query is not None and user_query != "":
-	st.session_state.chat_history.append(HumanMessage(user_query)
-	with st.chat_message("You"):
-		st.markdown(user_query)
-	with st.chat_message("Rag Bot"):
-		ai_response = st.write_stream(query_rag(user_query, st.session_state.chat_history))
-	st.session_state.chat_history.append(AIMessage(ai_response))"""
-
 import streamlit as st
 import requests
 from langchain.schema import HumanMessage, AIMessage
@@ -55,7 +37,7 @@ upload_css = """
 st.markdown(upload_css, unsafe_allow_html=True)
 
 st.markdown('<div class="upload-container">', unsafe_allow_html=True)
-uploaded_file = st.file_uploader("＋", type=["pdf", "txt", "csv", "docx"], label_visibility="collapsed")
+uploaded_file = st.file_uploader("＋", type=["pdf", "txt", "csv", "docx", "jpg", "jpeg", "png", "db", "sqlite", "xlsx", "json", "md"], label_visibility="collapsed")
 st.markdown("</div>", unsafe_allow_html=True)
 
 if uploaded_file and st.session_state.uploaded_file_name != uploaded_file.name:
@@ -88,9 +70,9 @@ if user_query:
                 result = response.json()
 
                 if "Response" in result:
-                    st.markdown(f"💬 Response\n{result['Response']}")
+                    st.markdown(f"💬 Final Response\n{result['Response']}")
                 if "Context" in result:
-                    with st.expander("📄 Context"):
+                    with st.expander("📄 Contexts"):
                         st.markdown(result["Context"])
                 if "Source Info" in result:
                     with st.expander("📚 Source Info"):
