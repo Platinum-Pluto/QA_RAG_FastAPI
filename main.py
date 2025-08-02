@@ -60,9 +60,9 @@ async def query_rag(request: Query):
     for c in context
     ]
     clean_uploads()
+    #print(response)
     return {"Context":formatted_contexts, "Response": response, "Source Info": source}
     
-
 
 @app.post("/upload")
 async def upload_file(file: List[UploadFile] = File(...)):

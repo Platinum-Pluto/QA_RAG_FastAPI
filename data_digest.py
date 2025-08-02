@@ -1,6 +1,6 @@
 from langchain_core.documents import Document
 from langchain_community.document_loaders import PyMuPDFLoader
-from docx import Document 
+from docx import Document as DocxDocument
 from PIL import Image
 import pytesseract
 import pandas as pd
@@ -8,13 +8,12 @@ import sqlite3
 import os
 
 
-
 def load_pdf(file_path):
     loader = PyMuPDFLoader(file_path)
     return loader.load()
 
 def load_docx(file_path):
-    doc = Document(file_path)
+    doc = DocxDocument(file_path)
     full_text = "\n".join([para.text for para in doc.paragraphs])
     return [Document(page_content=full_text, metadata={"source": file_path})]
 
@@ -44,6 +43,11 @@ def load_sqlite(file_path, query="SELECT name FROM sqlite_master WHERE type='tab
         documents.append(Document(page_content=text, metadata={"source": f"{file_path}:{table}"}))
     conn.close()
     return documents
+
+def load_sql_file(file_path):
+    with open(file_path, "r", encoding="utf-8") as f:
+        sql_text = f.read()
+    return [Document(page_content=sql_text, metadata={"source": file_path})]
 
 def load_xlsx(file_path):
     df = pd.read_excel(file_path)
@@ -75,6 +79,8 @@ def load_file(file_path):
         return load_csv(file_path)
     elif ext in [".db", ".sqlite"]:
         return load_sqlite(file_path)
+    elif ext == ".sql":
+        return load_sql_file(file_path)
     elif ext == ".xlsx":
         return load_xlsx(file_path)
     elif ext == ".json":
@@ -83,4 +89,3 @@ def load_file(file_path):
         return load_md(file_path)
     else:
         raise ValueError(f"Unsupported file type: {ext}")
-    

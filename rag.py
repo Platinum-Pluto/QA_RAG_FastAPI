@@ -28,7 +28,6 @@ class PlatinumPipeline:
         self.llm = init_chat_model(os.getenv("MODEL"), model_provider=os.getenv("PROVIDER"))
         self.embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
         #self.embeddings = GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-001")
-
         self.vector_store = Chroma(
             collection_name="rag_collection",
             embedding_function=self.embeddings,
@@ -77,6 +76,8 @@ Helpful Answer:
 
     def retrieve(self, state: State):
         retrieved_docs = self.vector_store.similarity_search(state["question"])
+        self.vector_store.delete_collection()
+        self.rag_docs = None
         self.rag_docs = retrieved_docs
         return {"context": retrieved_docs}
 
