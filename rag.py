@@ -26,8 +26,8 @@ class PlatinumPipeline:
         os.environ["GOOGLE_API_KEY"] = os.getenv("API_KEY")
 
         self.llm = init_chat_model(os.getenv("MODEL"), model_provider=os.getenv("PROVIDER"))
-        #self.embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
-        self.embeddings = GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-001")
+        self.embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+        #self.embeddings = GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-001")
 
         self.vector_store = Chroma(
             collection_name="rag_collection",
@@ -63,7 +63,7 @@ Helpful Answer:
         docs = []
         files = self.list_files()
         for file in files:
-            doc = load_file(os.path.join(self.upload_dir, file))
+            doc = load_file(os.path.join(self.UPLOAD_DIR, file))
             docs.extend(doc)
 
         text_splitter = RecursiveCharacterTextSplitter(
@@ -76,7 +76,7 @@ Helpful Answer:
 
 
     def retrieve(self, state: State):
-        retrieved_docs = self.vectors.similarity_search(state["question"])
+        retrieved_docs = self.vector_store.similarity_search(state["question"])
         self.rag_docs = retrieved_docs
         return {"context": retrieved_docs}
 

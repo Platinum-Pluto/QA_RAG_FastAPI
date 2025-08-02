@@ -31,11 +31,16 @@ async def query_rag(query, file: List[UploadFile] = File(...)):
     
     elif file:
         for f in file:
-            os.path.join(UPLOAD_DIR, f.filename)
+            file_path = os.path.join(UPLOAD_DIR, f.filename)
+            with open(file_path, "wb") as buffer:
+                content = await f.read()
+                buffer.write(content)
         rag = PlatinumPipeline()
         response, context = rag.gen_ans(query)
+        formatted_contexts = [c.page_content for c in context]
+        source = [f"Page {c.metadata.get('page', 0) + 1} of {os.path.basename(c.metadata.get('file_path', 'unknown'))}" for c in context]
         clean_uploads()
-        return {"Context":context, "Response": response}
+        return {"Context":formatted_contexts, "Response": response, "Source Info": source}
     
     else:
         return {"message": "No files were uploaded"}
@@ -48,14 +53,13 @@ async def upload_file(file: List[UploadFile] = File(...)):
     global files
     for f in file:
         file_id = str(uuid4())
-        os.path.join(UPLOAD_DIR, f"{file_id}_{f.filename}")
+        file_path = os.path.join(UPLOAD_DIR, f"{file_id}_{f.filename}")
         names.append(f.filename)
-        ids.append(file_id)
-    """        
-    with open(file_path, "wb") as buffer:
-        content = await file.read()
-        buffer.write(content)
-    """
+        ids.append(file_id)        
+        with open(file_path, "wb") as buffer:
+            content = await f.read()
+            buffer.write(content)
+    
     return {
         "message": "File uploaded successfully.",
         "file_id": ids,
