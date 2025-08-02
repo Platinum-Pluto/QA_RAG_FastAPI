@@ -1,0 +1,11 @@
+env/
+__pycache__/
+*.env
+*.env.*
+env.*
+*.gitignore
+*.gitignore.*
+gitignore.*
+unit_test.py
+test_files/
+uploads/

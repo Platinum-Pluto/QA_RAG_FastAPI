@@ -10,8 +10,8 @@ from data_digest import load_file
 import os
 from dotenv import load_dotenv
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
-
-
+import base64
+import httpx
 
 class PlatinumPipeline:
     class State(TypedDict):
@@ -96,3 +96,29 @@ Helpful Answer:
         response = graph.invoke({"question": question})
 
         return response["answer"], self.rag_docs
+    
+
+
+def query_image_base64(base64_image: str, query: str) -> str:
+    load_dotenv()
+    os.environ["GOOGLE_API_KEY"] = os.getenv("API_KEY")
+    llm = init_chat_model(os.getenv("MODEL"), model_provider=os.getenv("PROVIDER"))
+    image_data = base64.b64encode(httpx.get(base64_image).content).decode("utf-8")
+ 
+    message = {
+        "role": "user",
+        "content": [
+            {"type": "text", "text": query},
+            {
+                "type": "image",
+                "source_type": "base64",
+                "data": image_data,
+                "mime_type": "image/jpeg",
+            },
+        ],
+    }
+
+    response = llm.invoke([message])
+    return response.text()
+
+
