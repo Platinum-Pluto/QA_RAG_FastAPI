@@ -1,5 +1,5 @@
 services:
-  web:
+  fastapi:
       build: .
       command: sh -c "uvicorn main:app --reload --port=8000 --host=0.0.0.0"
       env_file:
@@ -8,3 +8,12 @@ services:
         - 8000:8000
       volumes:
         - .:/app
+      
+  streamlit:
+    build: .
+    command: "streamlit run frontend.py --server.port=8501 --server.address=0.0.0.0"
+    ports:
+      -8501:8501
+    volumes:
+      - .:/app
+      
