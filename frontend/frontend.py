@@ -55,6 +55,9 @@ if uploaded_file and st.session_state.uploaded_file_name != uploaded_file.name:
         except Exception as e:
             st.error(f"Error: {e}")
 
+st.markdown("---")
+base64_image_url = st.text_input("🔗 Optional base64 image link:", placeholder="Paste your base64 image URL here...")
+
 user_query = st.chat_input("You")
 if user_query:
     st.session_state.chat_history.append(HumanMessage(user_query))
@@ -64,7 +67,11 @@ if user_query:
 
     with st.chat_message("Rag Bot"):
         try:
-            response = requests.post("http://localhost:8000/query", json={"query": user_query})
+            payload = {
+                "query": user_query,
+                "base64_image_url": base64_image_url if base64_image_url else None
+            }
+            response = requests.post("http://localhost:8000/query", json=payload)
 
             if response.status_code == 200:
                 result = response.json()
