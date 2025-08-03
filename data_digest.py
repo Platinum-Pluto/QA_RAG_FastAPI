@@ -6,11 +6,34 @@ import pytesseract
 import pandas as pd
 import sqlite3
 import os
+import fitz
+import io
 
 
 def load_pdf(file_path):
-    loader = PyMuPDFLoader(file_path)
-    return loader.load()
+    doc = fitz.open(file_path)
+    documents = []
+    for page_index in range(len(doc)):
+        page = doc.load_page(page_index)
+        text = page.get_text("text").strip()
+
+        if text:
+            documents.append(Document(
+                page_content=text,
+                metadata={"source": file_path, "page": page_index + 1}
+            ))
+        else:
+            pix = page.get_pixmap(dpi=300)
+            image_bytes = pix.tobytes("png")
+            image = Image.open(io.BytesIO(image_bytes))
+            ocr_text = pytesseract.image_to_string(image)
+            documents.append(Document(
+                page_content=ocr_text,
+                metadata={"source": file_path, "page": page_index + 1}
+            ))
+
+    return documents
+
 
 def load_docx(file_path):
     doc = DocxDocument(file_path)
@@ -24,6 +47,7 @@ def load_txt(file_path):
 
 def load_image(file_path):
     text = pytesseract.image_to_string(Image.open(file_path))
+    #print(text)
     return [Document(page_content=text, metadata={"source": file_path})]
 
 def load_csv(file_path):
