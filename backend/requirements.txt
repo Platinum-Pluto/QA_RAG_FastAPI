@@ -6,7 +6,6 @@ langchain_core
 langchain_community
 pandas
 fastapi
-streamlit
 pytesseract
 dotenv
 langgraph

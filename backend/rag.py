@@ -9,9 +9,16 @@ from langchain_core.prompts import PromptTemplate
 from data_digest import load_file
 import os
 from dotenv import load_dotenv
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
 import base64
 import httpx
+
+load_dotenv()
+os.environ["GOOGLE_API_KEY"] = os.getenv("API_KEY")
+llm = init_chat_model(os.getenv("MODEL"), model_provider=os.getenv("PROVIDER"))
+llm1 = init_chat_model(os.getenv("MODEL"), model_provider=os.getenv("PROVIDER"))
+
+#I added two of them so that multimodal model and regular text gen model are separate and configurable
+
 
 class PlatinumPipeline:
     class State(TypedDict):
@@ -20,12 +27,8 @@ class PlatinumPipeline:
         answer: str
 
     def __init__(self):
-        load_dotenv()
         self.UPLOAD_DIR = "uploads"
-    
-        os.environ["GOOGLE_API_KEY"] = os.getenv("API_KEY")
-
-        self.llm = init_chat_model(os.getenv("MODEL"), model_provider=os.getenv("PROVIDER"))
+        self.llm = llm
         self.embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
         #self.embeddings = GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-001")
         self.vector_store = Chroma(
@@ -100,9 +103,6 @@ Helpful Answer:
 
 
 def query_image_base64(base64_image: str, query: str) -> str:
-    load_dotenv()
-    os.environ["GOOGLE_API_KEY"] = os.getenv("API_KEY")
-    llm = init_chat_model(os.getenv("MODEL"), model_provider=os.getenv("PROVIDER"))
     image_data = base64.b64encode(httpx.get(base64_image).content).decode("utf-8")
  
     message = {
@@ -118,7 +118,7 @@ def query_image_base64(base64_image: str, query: str) -> str:
         ],
     }
 
-    response = llm.invoke([message])
+    response = llm1.invoke([message])
     return response.text()
 
 
