@@ -8,4 +8,4 @@ env.*
 gitignore.*
 unit_test.py
 test_files/
-uploads/
+frontend/

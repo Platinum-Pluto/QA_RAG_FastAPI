@@ -11,14 +11,14 @@ import os
 from dotenv import load_dotenv
 import base64
 import httpx
+import re 
 
 load_dotenv()
 os.environ["GOOGLE_API_KEY"] = os.getenv("API_KEY")
 llm = init_chat_model(os.getenv("MODEL"), model_provider=os.getenv("PROVIDER"))
 llm1 = init_chat_model(os.getenv("MODEL"), model_provider=os.getenv("PROVIDER"))
 
-#I added two of them so that multimodal model and regular text gen model are separate and configurable
-
+#I added multimodal model support so that two separate models can be used separately
 
 class PlatinumPipeline:
     class State(TypedDict):
@@ -28,7 +28,7 @@ class PlatinumPipeline:
 
     def __init__(self):
         self.UPLOAD_DIR = "uploads"
-        self.llm = llm
+        self.llm = llm1
         self.embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
         #self.embeddings = GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-001")
         self.vector_store = Chroma(
@@ -99,11 +99,21 @@ Helpful Answer:
         response = graph.invoke({"question": question})
 
         return response["answer"], self.rag_docs
-    
+
+
+def is_base64_image(data: str) -> bool:
+    base64_pattern = re.compile(r"^(data:image\/(png|jpeg|jpg);base64,)?[A-Za-z0-9+/=]+$")
+    return bool(base64_pattern.match(data.strip()))
 
 
 def query_image_base64(base64_image: str, query: str) -> str:
-    image_data = base64.b64encode(httpx.get(base64_image).content).decode("utf-8")
+
+    if is_base64_image(base64_image):
+        if base64_image.startswith("data:image"):
+            base64_image = base64_image.split(",", 1)[1]
+        image_data = base64_image
+    else:
+        image_data = base64.b64encode(httpx.get(base64_image).content).decode("utf-8")
  
     message = {
         "role": "user",
@@ -118,7 +128,7 @@ def query_image_base64(base64_image: str, query: str) -> str:
         ],
     }
 
-    response = llm1.invoke([message])
+    response = llm.invoke([message])
     return response.text()
 
 
