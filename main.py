@@ -61,12 +61,13 @@ async def root():
 
 @app.post("/query")
 async def query_rag(request: Query):
-
     if request.base64_image_url:
         try:
             response = query_image_base64(request.base64_image_url, request.query)
+            clean_uploads()
             return {"Context": [""], "Response": response, "Source Info": f'🖼️ {request.base64_image_url}'}
         except Exception as e:
+            clean_uploads()
             return{"Context": [], "Response": f"Failed to process image: {str(e)}", "Source Info": []}
     try:    
         rag = PlatinumPipeline()
@@ -78,6 +79,7 @@ async def query_rag(request: Query):
         #print(response)
         return {"Context":formatted_contexts, "Response": response, "Source Info": source}
     except Exception as e:
+        clean_uploads()
         return{"Context": [], "Response": f"Failed to process image: {str(e)}", "Source Info": []}
     
 

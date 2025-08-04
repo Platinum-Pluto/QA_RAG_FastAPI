@@ -1,6 +1,8 @@
 import streamlit as st
 import requests
 from langchain.schema import HumanMessage, AIMessage
+import base64
+import mimetypes
 
 st.set_page_config(page_title="QA RAG BOT", page_icon="")
 st.title("QA RAG BOT")
@@ -10,6 +12,14 @@ if "chat_history" not in st.session_state:
 
 if "uploaded_file_name" not in st.session_state:
     st.session_state.uploaded_file_name = None
+
+use_multimodal = st.toggle("📷 Use Multimodal", key="use_multimodal")
+
+image_types = ["image/jpeg", "image/png", "image/png"]
+
+mime_type = ""
+
+multimodal_image_data = ""
 
 upload_css = """
 <style>
@@ -41,23 +51,28 @@ uploaded_file = st.file_uploader("＋", type=["pdf", "txt", "csv", "docx", "jpg"
 st.markdown("</div>", unsafe_allow_html=True)
 
 if uploaded_file and st.session_state.uploaded_file_name != uploaded_file.name:
+    mime_type, _ = mimetypes.guess_type(uploaded_file.name)
     with st.spinner("Uploading..."):
         files = {"file": (uploaded_file.name, uploaded_file.getvalue())}
         try:
-            response = requests.post("http://localhost:8000/upload", files=files)
+            response = requests.post("http://fastapi:8000/upload", files=files)
             if response.status_code == 200:
                 result = response.json()
                 st.success(f"{result['message']}")
                 st.toast(f"Uploaded: {result['filename']}", icon="📁")
                 st.session_state.uploaded_file_name = uploaded_file.name
+                if use_multimodal and mime_type in image_types:
+                    st.session_state.base64_image_url = base64.b64encode(uploaded_file.getvalue()).decode("utf-8")
             else:
                 st.error(f"Upload failed: {response.status_code}")
         except Exception as e:
             st.error(f"Error: {e}")
 
 st.markdown("---")
-base64_image_url = st.text_input("🔗 Optional base64 image link:", placeholder="Paste your base64 image URL here...")
-
+if use_multimodal and "base64_image_url" in st.session_state:
+    base64_image_url = st.session_state.base64_image_url
+else:
+    base64_image_url = st.text_input("🔗 Optional base64 image link:", placeholder="Paste your base64 image URL here...")
 user_query = st.chat_input("You")
 if user_query:
     st.session_state.chat_history.append(HumanMessage(user_query))
@@ -71,7 +86,8 @@ if user_query:
                 "query": user_query,
                 "base64_image_url": base64_image_url if base64_image_url else None
             }
-            response = requests.post("http://localhost:8000/query", json=payload)
+            response = requests.post("http://fastapi:8000/query", json=payload)
+            st.session_state.pop("base64_image_url", None)
 
             if response.status_code == 200:
                 result = response.json()
