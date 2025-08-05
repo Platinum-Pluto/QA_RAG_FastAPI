@@ -75,8 +75,8 @@ The Streamlit app communicates with the FASTapi server to send and retrieve data
 
 After setting up the docker images and container remember to put in the API key, model name and provider name in the .env file and then run `docker compose up` otherwise without these the LLM model will not work.
 
-> ⚠️**Warning:**Currently this project only supports Gemini models for both multimodal support I used Gemini 2.5 flash model so use Gemini api.  
-> ⚠️**Warning:**If you want to change the model you want to use then open rag.py and change the `os.environ["GOOGLE_API_KEY"] = os.getenv("API_KEY")` to the following Langchain supported LLM's then simply copy paste to replace the existing one with any one of the below of which you want to use:
+> ⚠️ **Warning:** Currently this project only supports Gemini models for both multimodal support I used Gemini 2.5 flash model so use Gemini api.  
+> ⚠️ **Warning:** If you want to change the model you want to use then open rag.py and change the `os.environ["GOOGLE_API_KEY"] = os.getenv("API_KEY")` to the following Langchain supported LLM's then simply copy paste to replace the existing one with any one of the below of which you want to use:
 
 `os.environ["OPENAI_API_KEY"] = os.getenv("API_KEY")` [Provider in .env will be openai]
 `os.environ["ANTHROPIC_API_KEY"] = os.getenv("API_KEY")` [Provider in .env will be anthropic]
