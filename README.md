@@ -7,7 +7,6 @@
 - Docker compose to build container from images support
 - Utilizes Langchain graph setup.
 
-# README.md
 **Table of Contents**
 
 - [Project Setup](#project-setup)
