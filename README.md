@@ -183,6 +183,10 @@ You can toggle the "Use Multimodal" on/off to use multimodal model functionaliti
 # Unit Tests
 The code below is for generating a unit test report of the FastAPI functionalities and checking if its working for all cases.
 Feel free to use it.
+Use the terminal command below to run the unit test code
+```markdown
+pytest your_unit_test_filename.py -s
+```
 
 ```python
 import pytest
