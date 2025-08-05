@@ -11,6 +11,8 @@
 
 - [Project Setup](#project-setup)
 - [Fastapi Manual](#fastapi-manual)
+  - [Swagger UI](#swagger-ui)
+  - [Using CURL](#using-curl)
 - [Streamlit Manual](#streamlit-manual)
 - [Workflow](#workflow)
 - [Unit Tests](#unit-tests)
@@ -76,17 +78,16 @@ The Streamlit app communicates with the FASTapi server to send and retrieve data
 After setting up the docker images and container remember to put in the API key, model name and provider name in the .env file and then run `docker compose up` otherwise without these the LLM model will not work.
 
 > ⚠️ **Warning:** Currently this project only supports Gemini models for both multimodal support I used Gemini 2.5 flash model so use Gemini api.  
-> ⚠️ **Warning:** If you want to change the model you want to use then open rag.py and change the `os.environ["GOOGLE_API_KEY"] = os.getenv("API_KEY")` to the following Langchain supported LLM's then simply copy paste to replace the existing one with any one of the below of which you want to use:
-
-`os.environ["OPENAI_API_KEY"] = os.getenv("API_KEY")` [Provider in .env will be openai]
-`os.environ["ANTHROPIC_API_KEY"] = os.getenv("API_KEY")` [Provider in .env will be anthropic]
-`os.environ["GROQ_API_KEY"] = os.getenv("API_KEY")` [Provider in .env will be groq]
-`os.environ["COHERE_API_KEY"] = os.getenv("API_KEY")` [Provider in .env will be cohere]
-`os.environ["NVIDIA_API_KEY"] = os.getenv("API_KEY")` [Provider in .env will be nvidia]
-`os.environ["FIREWORKS_API_KEY"] = os.getenv("API_KEY")` [Provider in .env will be fireworks]
-`os.environ["MISTRAL_API_KEY"] = os.getenv("API_KEY")` [Provider in .env will be mistralai]
-`os.environ["TOGETHER_API_KEY"] = os.getenv("API_KEY")` [Provider in .env will be together]
-`os.environ["XAI_API_KEY"] = os.getenv("API_KEY")` [Provider in .env will be xai]
+> ⚠️ **Warning:** If you want to change the model you want to use then open rag.py and change the `os.environ["GOOGLE_API_KEY"] = os.getenv("API_KEY")` to the following Langchain supported LLM's then simply copy paste to replace the existing one with any one of the below of which you want to use:  
+`os.environ["OPENAI_API_KEY"] = os.getenv("API_KEY")` [Provider in .env will be openai]  
+`os.environ["ANTHROPIC_API_KEY"] = os.getenv("API_KEY")` [Provider in .env will be anthropic]  
+`os.environ["GROQ_API_KEY"] = os.getenv("API_KEY")` [Provider in .env will be groq]  
+`os.environ["COHERE_API_KEY"] = os.getenv("API_KEY")` [Provider in .env will be cohere]  
+`os.environ["NVIDIA_API_KEY"] = os.getenv("API_KEY")` [Provider in .env will be nvidia]  
+`os.environ["FIREWORKS_API_KEY"] = os.getenv("API_KEY")` [Provider in .env will be fireworks]  
+`os.environ["MISTRAL_API_KEY"] = os.getenv("API_KEY")` [Provider in .env will be mistralai]  
+`os.environ["TOGETHER_API_KEY"] = os.getenv("API_KEY")` [Provider in .env will be together]  
+`os.environ["XAI_API_KEY"] = os.getenv("API_KEY")` [Provider in .env will be xai]  
 `os.environ["PPLX_API_KEY"] = os.getenv("API_KEY")` [Provider in .env will be perplexity]
 
 And change the .env model name, api key and provider based on your needs. 
