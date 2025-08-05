@@ -1,0 +1,11 @@
+Model = gemini-2.5-flash, Provider = google_genai
+Model = gpt-4o-mini, Provider = openai
+Model = claude-3-5-sonnet-latest, Provider = anthropic
+Model = llama3-8b-8192, Provider = groq
+Model = command-r-plus, Provider = cohere
+Model = meta/llama3-70b-instruct, Provider = nvidia
+Model = accounts/fireworks/models/llama-v3p1-70b-instruct, Provider = fireworks
+Model = mistral-large-latest, Provider = mistralai
+Model = mistralai/Mixtral-8x7B-Instruct-v0.1, Provider = together
+Model = grok-2, Provider = xai
+Model = llama-3.1-sonar-small-128k-online, Provider = perplexity

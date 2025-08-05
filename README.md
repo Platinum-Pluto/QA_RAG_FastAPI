@@ -91,6 +91,24 @@ After setting up the docker images and container remember to put in the API key,
 `os.environ["XAI_API_KEY"] = os.getenv("API_KEY")` [Provider in .env will be xai]  
 `os.environ["PPLX_API_KEY"] = os.getenv("API_KEY")` [Provider in .env will be perplexity]
 
+Here is a list of models and their providers which you can copy paste and use:
+```For this project I used MODEL=gemini-2.5-flash and PROVIDER=google_genai in the .env file```
+
+| Model Name                                    | Provider      |
+|----------------------------------------------|---------------|
+| gemini-2.5-flash                              | google_genai  |
+| gpt-4o-mini                                   | openai        |
+| claude-3-5-sonnet-latest                      | anthropic     |
+| llama3-8b-8192                                | groq          |
+| command-r-plus                                | cohere        |
+| meta/llama3-70b-instruct                      | nvidia        |
+| accounts/fireworks/models/llama-v3p1-70b-instruct | fireworks |
+| mistral-large-latest                          | mistralai     |
+| mistralai/Mixtral-8x7B-Instruct-v0.1          | together      |
+| grok-2                                        | xai           |
+| llama-3.1-sonar-small-128k-online             | perplexity    |
+
+
 And change the .env model name, api key and provider based on your needs. 
 
 
