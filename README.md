@@ -3,6 +3,7 @@
 - OCR-Tesseract support with pytesseract to extract texts from images for context.
 - Upload route with multiple files and Query with image supported. [base64 image encoded]
 - Multimodal model support which can describe images or analyze diagrams and such from an image.
+- Multimodal model supports Image urls.
 - Streamlit app for an interactive user experience.
 - Docker compose to build container from images support
 - Utilizes Langchain graph setup.
