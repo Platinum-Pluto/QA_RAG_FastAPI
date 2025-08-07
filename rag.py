@@ -19,7 +19,7 @@ os.environ["GOOGLE_API_KEY"] = os.getenv("API_KEY")
 llm = init_chat_model(os.getenv("MODEL"), model_provider=os.getenv("PROVIDER"))
 llm1 = init_chat_model(os.getenv("MODEL"), model_provider=os.getenv("PROVIDER"))
 
-#I added multimodal model support so that two separate models can be used separately
+#I added multimodal model support here so that two separate models can be used separately
 
 class PlatinumPipeline:
     class State(TypedDict):
@@ -66,12 +66,15 @@ Helpful Answer:
         docs = []
         files = self.list_files()
         for file in files:
-            doc = load_file(os.path.join(self.UPLOAD_DIR, file))
-            docs.extend(doc)
+            full_path = os.path.join(self.UPLOAD_DIR, file)
+            raw_docs = load_file(full_path)
+            for d in raw_docs:
+                d.metadata["file_path"] = full_path
+            docs.extend(raw_docs)
 
         text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=1000,
-            chunk_overlap=200,
+            chunk_size=500,
+            chunk_overlap=50,
             separators=["\n\n", "\n", " ", ""]
         )
         all_splits = text_splitter.split_documents(docs)
@@ -79,8 +82,7 @@ Helpful Answer:
 
 
     def retrieve(self, state: State):
-        retrieved_docs = self.vector_store.similarity_search(state["question"])
-        self.vector_store.delete_collection()
+        retrieved_docs = self.vector_store.similarity_search(state["question"], k = 10)
         self.rag_docs = None
         self.rag_docs = retrieved_docs
         return {"context": retrieved_docs}
@@ -98,14 +100,13 @@ Helpful Answer:
         graph_builder.add_edge(START, "retrieve")
         graph = graph_builder.compile()
         response = graph.invoke({"question": question})
+        self.vector_store.delete_collection()
 
         return response["answer"], self.rag_docs
 
 
 def is_base64_image(data: str) -> bool:
     try:
-        if data.startswith("data:image"):
-            data = data.split(",", 1)[1]
         base64.b64decode(data, validate=True)
         return True
     except Exception:
@@ -113,7 +114,8 @@ def is_base64_image(data: str) -> bool:
 
 
 def query_image_base64(base64_image: str, query: str) -> str:
-
+    if base64_image.startswith("data:image"):
+            base64_image = base64_image.split(",", 1)[1]
     if is_base64_image(base64_image):
         image_data = base64_image
     else:

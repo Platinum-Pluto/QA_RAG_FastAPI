@@ -5,7 +5,7 @@ from typing import List, Optional
 from rag import PlatinumPipeline, query_image_base64
 from pathlib import Path
 from pydantic import BaseModel
-import re
+
 
 UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
@@ -17,8 +17,6 @@ def clean_uploads():
     for file in folder.iterdir():
         if file.is_file():
             file.unlink()
-
-
 
 class Query(BaseModel):
     query: str
@@ -47,11 +45,12 @@ def source_infos(context):
     source = []
     for c in context:
         file_path = c.metadata.get("file_path", "unknown")
-        file_name = re.sub(r'^.*?_', '', os.path.basename(file_path))
+        file_name = os.path.basename(file_path).split("_", 1)[-1]
         icon = get_icon_for_file(file_name)
         page = c.metadata.get("page", 0) + 1
         source.append(f"{icon} Page {page} of {file_name}")
     return source
+
 
 
 @app.get("/")
@@ -102,6 +101,3 @@ async def upload_file(file: List[UploadFile] = File(...)):
         "file_id": ids,
         "filename": names
     }
-
-
-
