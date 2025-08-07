@@ -27,6 +27,15 @@ To clone this repository use the following git command:
 git clone https://github.com/Platinum-Pluto/QA_RAG_FastAPI.git
 ```
 
+After cloning the project edit the sample .env file given with your api credentials such as:
+
+```markdown
+API_KEY = Your_API_KEY
+MODEL = gemini-2.5-flash
+PROVIDER = google_genai
+```
+
+
 Since the images for this project exists in my dockerhub repository you can either pull both of the images required for this project or build the images and create their container in your own PC.
 However you need docker desktop installed in your system.
 Here is a link to the docker desktop page if you do not have docker installed:
